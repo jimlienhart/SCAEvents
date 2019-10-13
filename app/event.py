@@ -45,7 +45,7 @@ class FeeCategory:
         self.name = _jsonget_(fc, 'name')
         self.key = __key__(self.name)
         self.desc = _jsonget_(fc, 'desc')
-        self.nms = _jsonget_(fc, 'nms', 0.0)
+        self.nms = int(_jsonget_(fc, 'nms', 0.0) * 100)
     def Option(self):
         return {self.key, str(self)}
     def __str__(self):
@@ -63,10 +63,12 @@ class FeeCategory:
         return self.name != ''
     
 class Fee:
-    def __init__(self, f):
-        self.name = _jsonget_(f, 'name')
+    def __init__(self, fee):
+        self.name = _jsonget_(fee, 'name')
         self.key = __key__(self.name)
-        self.fees = _jsonget_(f, 'fees', [])
+        self.fees = _jsonget_(fee, 'fees', [])
+        for f in self.fees:
+            self.fees[f] = self.fees[f] * 100
     def __repr__(self):
         return self.name + ' : ' + str(self.fees)
     def __bool__(self):
@@ -153,7 +155,7 @@ function checkAdmission(idx, key) {
     if (admKeys.indexOf(key) >= 0) {
         for (k in admKeys) {
             if (admKeys[k] != key) {
-                getResvField(idx, admKeys[k]).checked = false
+                setResvFieldChecked(idx, admKeys[k], false);
             }
         }
     }

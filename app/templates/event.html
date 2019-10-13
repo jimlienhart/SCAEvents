@@ -8,7 +8,7 @@
  function getResvField(idx, fieldname) {
    return document.getElementById("reservations-" + idx.toString() + "-" + fieldname);
  }
-
+ 
  function getResvFieldValue(idx, fieldname) {
    var field = getResvField(idx, fieldname);
    if (field) {
@@ -33,6 +33,14 @@
      return false;
    }
  }
+ 
+ function setResvFieldChecked(idx, fieldname, check) {
+   var field = getResvField(idx, fieldname);
+   if (field) {
+     field.checked = check;
+   }
+ }
+ 
  function isFieldEmpty(idx, fieldname) {
    var field = getResvField(idx, fieldname);
    return !(field && field.value.trim());
@@ -47,39 +55,43 @@
    }
    return true;
  }
+ 
  function getResvTotal(idx) {
    var t = getResvFieldValue(idx, "total");
    if (t) {
-     return parseFloat(t);
+     return parseFloat(t)*100;
    } else {
      return 0.0;
    }
  }
+ 
  function setResvTotal(idx, total) {
    var field = getResvField(idx, "total")
    if (!field) {
 	 return;
    }
-   field.value = total.toFixed(2);
+   field.value = (total/100.0).toFixed(2);
    var t = 0.0;
    for (var r=0; r<16; ++r) {
      t += getResvTotal(r);
    }
-   document.getElementById("total").value = t.toFixed(2);
+   document.getElementById("total").value = (t/100.0).toFixed(2);
  }
 
  function checkEnabled() {
    for (var r = 0; r < 16; ++r) {
-     var empty = !isRowEmpty(r.toString());
+     var empty = isRowEmpty(r);
      checkRowEnabled(r, !empty);
    }
  }
- function onInit() {
+ 
+ window.onload = function() {
    ADD_CONTACT = isRowEmpty(0);
    checkEnabled();
  }
- window.onload = onInit;
+ 
  function checkRowEnabled(idx, notempty) {
+   console.log(idx + ' : ' + notempty);
    var row = document.getElementById("resvtable").rows[2+parseInt(idx, 10)];
    for (var i=0; i < row.cells.length; ++i) {
      cell = row.cells[i];
@@ -95,6 +107,7 @@
    total = calcRowTotal(idx);
    setResvTotal(idx, total);
  }
+ 
  function lineChanged(obj) {
    //debugger;
    ADD_CONTACT = false;
@@ -104,6 +117,7 @@
    var empty = isRowEmpty(idx);
    checkRowEnabled(idx, !empty);
  }
+ 
  function contactChanged(obj) {
    if (ADD_CONTACT) {
 	 var field = document.getElementById(obj.id);
@@ -114,33 +128,35 @@
 	 }
    }
  }
+ 
  function colClick(col) {
    var r;
    rows = [];
-   idx = []
    for (r=0; r<16; ++r) {
 	 if (!isRowEmpty(r)) {
-	   rows.push(document.getElementById("reservations-" + r + "-" + col));
-	   idx.push(r.toString());
+	   rows.push(r);
 	 }
    }
    if (rows ) {
 	 var check = true;
 	 for (r=0; r<rows.length; ++r) {
-	   if (!rows[r].checked) {
+	   if (!isResvFieldChecked(rows[r], col)) {
 		 check = false;
 		 break;
 	   }
 	 }
 	 for (r=0; r<rows.length; ++r) {
-	   rows[r].checked = !check
+	   setResvFieldChecked(rows[r], col, !check);
 	   if (!check) {
-		 checkAdmission(idx[r], col);
+		 checkAdmission(rows[r], col);
 	   }
 	 }
    }
-   checkEnabled(); }
+   checkEnabled();
+ }
+ 
  {{ event.scripts|safe }}
+ 
 </script>
 <h2>Reservations for {{ event.label }}</h2>
 <table>
@@ -178,7 +194,7 @@
   </table>
   <hr/>
   <h3>Reservations</h3>
-  <table id="resvtable" onload="checkEnabled">
+  <table id="resvtable">
 	<tr>
 	  <th colspan="{{ event.numNameCols }}"/>
 	  <th colspan="{{ event.numAdmCols }}" class="admission">{{ event.admLabel }}</th>
