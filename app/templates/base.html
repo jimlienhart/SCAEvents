@@ -1,0 +1,32 @@
+{% from "macros.html" import show_errors with context %}
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>SCA Event Registration</title>
+	<style type="text/css">
+	 .nb {
+		 border-width: 0px;
+		 text-align: right;
+	 }
+	 .admission {
+		 background: lightblue;
+	 }
+	</style>
+  </head>
+  <body>
+	<div>
+	  SCA Event Registration:
+	</div>
+	<hr>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul>
+	  {% for message in messages %}
+	  <li>{{ message }}</li>
+	  {% endfor %}
+	</ul>
+	{% endif %}
+	{% endwith %}
+	{% block content %}{% endblock %}
+  </body>
+</html>

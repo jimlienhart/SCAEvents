@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Event Reservations</h1>
+    {% for ev in events %}
+    <div><p><a href="{{ url_for('event', evkey=ev.key) }}">{{ ev.label }}</a></b></p></div>
+    {% endfor %}
+{% endblock %}

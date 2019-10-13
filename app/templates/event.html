@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+ var FEES = getFeeTable();
+ var ADD_CONTACT = false
+ 
+ function getResvField(idx, fieldname) {
+   return document.getElementById("reservations-" + idx.toString() + "-" + fieldname);
+ }
+
+ function getResvFieldValue(idx, fieldname) {
+   var field = getResvField(idx, fieldname);
+   if (field) {
+     return field.value.trim();
+   } else {
+     return "";
+   }
+ }
+ 
+ function setResvFieldValue(idx, fieldname, value) {
+   var field = getResvField(idx, fieldname);
+   if (field) {
+     field.value = value.trim();
+   }
+ }
+ 
+ function isResvFieldChecked(idx, fieldname) {
+   var field = getResvField(idx, fieldname);
+   if (field) {
+     return field.checked;
+   } else {
+     return false;
+   }
+ }
+ function isFieldEmpty(idx, fieldname) {
+   var field = getResvField(idx, fieldname);
+   return !(field && field.value.trim());
+ }
+
+ function isRowEmpty(idx) {
+   var fields = ["firstname", "lastname", "scaname", "membernumber"];
+   for (var i=0; i<fields.length; ++i) {
+     if (!isFieldEmpty(idx, fields[i])) {
+       return false;
+     }
+   }
+   return true;
+ }
+ function getResvTotal(idx) {
+   var t = getResvFieldValue(idx, "total");
+   if (t) {
+     return parseFloat(t);
+   } else {
+     return 0.0;
+   }
+ }
+ function setResvTotal(idx, total) {
+   var field = getResvField(idx, "total")
+   if (!field) {
+	 return;
+   }
+   field.value = total.toFixed(2);
+   var t = 0.0;
+   for (var r=0; r<16; ++r) {
+     t += getResvTotal(r);
+   }
+   document.getElementById("total").value = t.toFixed(2);
+ }
+
+ function checkEnabled() {
+   for (var r = 0; r < 16; ++r) {
+     var empty = !isRowEmpty(r.toString());
+     checkRowEnabled(r, !empty);
+   }
+ }
+ function onInit() {
+   ADD_CONTACT = isRowEmpty(0);
+   checkEnabled();
+ }
+ window.onload = onInit;
+ function checkRowEnabled(idx, notempty) {
+   var row = document.getElementById("resvtable").rows[2+parseInt(idx, 10)];
+   for (var i=0; i < row.cells.length; ++i) {
+     cell = row.cells[i];
+     if (cell.classList.contains("enable")) {
+       for (var j=0; j<cell.children.length; ++j) {
+         cell.children[j].disabled = !notempty;
+         if (!notempty &&  (cell.children[j].classList.contains("checkbox"))) {
+           cell.children[j].checked = false;
+         }
+       }
+     }
+   }
+   total = calcRowTotal(idx);
+   setResvTotal(idx, total);
+ }
+ function lineChanged(obj) {
+   //debugger;
+   ADD_CONTACT = false;
+   var idx = obj.name.split("-")[1];
+   var key = obj.name.split("-")[2];
+   checkAdmission(idx, key);
+   var empty = isRowEmpty(idx);
+   checkRowEnabled(idx, !empty);
+ }
+ function contactChanged(obj) {
+   if (ADD_CONTACT) {
+	 var field = document.getElementById(obj.id);
+	 if (field) {
+	   value = field.value.trim();
+	   setResvFieldValue("0", obj.name, value);
+	   checkRowEnabled("0", value);
+	 }
+   }
+ }
+ function colClick(col) {
+   var r;
+   rows = [];
+   idx = []
+   for (r=0; r<16; ++r) {
+	 if (!isRowEmpty(r)) {
+	   rows.push(document.getElementById("reservations-" + r + "-" + col));
+	   idx.push(r.toString());
+	 }
+   }
+   if (rows ) {
+	 var check = true;
+	 for (r=0; r<rows.length; ++r) {
+	   if (!rows[r].checked) {
+		 check = false;
+		 break;
+	   }
+	 }
+	 for (r=0; r<rows.length; ++r) {
+	   rows[r].checked = !check
+	   if (!check) {
+		 checkAdmission(idx[r], col);
+	   }
+	 }
+   }
+   checkEnabled(); }
+ {{ event.scripts|safe }}
+</script>
+<h2>Reservations for {{ event.label }}</h2>
+<table>
+  <tr><td class="nb">Autocrat:</td><td class="nb">{{ event.autocrat }}</td></tr>
+</table>
+<hr/>
+<h3>Contact Information</h3>
+<form action="" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <table style="border-collapse=collapse;">
+    <tr class="nb">
+      <td class="nb">{{ form.email.label }}:</td>
+      <td class="nb">{{ form.email(size=32) }} {{ show_errors(form.email) }}</td>
+      <td class="nb">{{ form.password.label }}:</td>
+      <td class="nb">{{ form.password(size=32) }} {{ show_errors(form.password) }}</td>
+    </tr>
+    <tr class="nb">
+      <td class="nb">{{ form.firstname.label }}:</td>
+      <td class="nb">{{ form.firstname(size=32, onchange="contactChanged(this)") }} {{ show_errors(form.firstname) }}</td>
+      <td class="nb">{{ form.lastname.label }}:</td>
+      <td class="nb">{{ form.lastname(size=32, onchange="contactChanged(this)") }}{{ show_errors(form.lastname) }}</td>
+    </tr>
+    <tr class="nb">
+      <td class="nb">SCA Name:<br/>(optional)</td>
+      <td class="nb">{{ form.scaname(size=32, onchange="contactChanged(this)") }} {{ show_errors(form.scaname) }}</td>
+      <td class="nb">Member Number:<br/>(if member)</td>
+      <td class="nb">{{ form.membernumber(size=32, onchange="contactChanged(this)") }}{{ show_errors(form.lastname) }}</td>
+    </tr>
+	<tr>
+      <td class="nb">Address:<br/>(optional)</td>
+      <td class="nb">{{ form.address(style="width:100%;",rows=3) }} {{ show_errors(form.address) }}</td>
+      <td class="nb">Phone:<br/>(optional)</td>
+      <td class="nb">{{ form.phone(size=32) }} {{ show_errors(form.phone) }}</td>
+	</tr>
+  </table>
+  <hr/>
+  <h3>Reservations</h3>
+  <table id="resvtable" onload="checkEnabled">
+	<tr>
+	  <th colspan="{{ event.numNameCols }}"/>
+	  <th colspan="{{ event.numAdmCols }}" class="admission">{{ event.admLabel }}</th>
+	  <th colspan="{{ event.numFeeCols }}"/>
+	  <th/>
+	  <th>Special</th>
+	</tr>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>SCA Name (optional)</th>
+      <th>Member Number<br/>(if member)</th>
+      <th><button type="button" onclick="colClick('family')">Family</button></th>
+      <th>Age</th>
+      {% for key,name in form.admfields.items() %}
+      <th class="admission"><button type="button" onclick="colClick('{{ key }}')">{{ name }}</button></th>
+      {% endfor %}
+      {% for key,name in form.feefields.items() %}
+      <th><button type="button" onclick="colClick('{{ key }}')">{{ name }}</button></th>
+      {% endfor %}
+      <th>Total</th>
+      <th><em>{{ event.special|safe }}</em></th>
+    </tr>
+    {% for r in form.reservations %}
+    {% set idx = loop.index0 %}
+    <tr>
+      <td>{{ r.firstname(size=16, onchange="lineChanged(this)") }}</td>
+      <td>{{ r.lastname(size=24, onchange="lineChanged(this)") }}</td>
+      <td>{{ r.scaname(size=32, onchange="lineChanged(this)") }}</td>
+      <td>{{ r.membernumber(size=12, onchange="lineChanged(this)") }}</td>
+      <td style="text-align:center;">{{ r.family(onchange="lineChanged(this)") }}</td>
+      <td class="enable">{{ r.age(onchange="lineChanged(this)") }}</td>
+      {% for key,name in form.admfields.items() %}
+      <td style="text-align:center;" class="enable admission">
+        <input type="checkbox" id="reservations-{{ idx }}-{{ key }}" name="reservations-{{ idx }}-{{ key }}" class="checkbox" onchange="lineChanged(this)"/>
+      </td>
+      {% endfor %}
+      {% for key,name in form.feefields.items() %}
+      <td style="text-align:center;" class="enable">
+        <input type="checkbox" id="reservations-{{ idx }}-{{ key }}" name="reservations-{{ idx }}-{{ key }}" class="checkbox" onchange="lineChanged(this)"/>
+      </td>
+      {% endfor %}
+      <td>{{ r.total(size=8,style="text-align:right;") }}</td>
+      <td>{{ r.special }}</td>
+    </tr>
+    {% endfor %}
+    <tr><td colspan="{{ event.numNameCols + event.numAdmCols + event.numFeeCols }}"/><td>{{ form.total(size=8,style="text-align:right;") }}</td></tr>
+  </table>
+  <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
+

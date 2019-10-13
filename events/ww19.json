@@ -1,0 +1,76 @@
+{
+    "version" : "0.1",
+	"key"     : "ww19",
+    "event"   : "A Shoote in the Wyldwoode",
+    "dates"    : ["2019-08-31", "2019-09-02"],
+    "site"    : "Wildwood SporstCenter",
+    "address" : "Fikes Rd, Elbridge, NY, 13011",
+    "staff"   : [
+		{"title" : "Autocrat",
+		 "names" : ["Sarah LeMay", "Glenna Chumbley"]
+		},
+        {"title" : "Feastocrat",
+		 "names" : ["Suzanne Ackley-Perot"]
+		},
+        {"title" : "Iron Chef",
+		 "names" : ["Kieran Ralff"]
+		}
+    ],
+    "feeClasses" : [
+		{ "name" : "Adult",
+		  "desc" : "",
+		  "nms"  : 5.0
+		},
+		{ "name" : "Youth",
+		  "desc" : "6-17",
+		  "nms"  : 0.0
+		},
+		{ "name" : "Child",
+		  "desc" : "Under 6",
+		  "nms"  : 0.0
+		}
+	],
+	"comp" : [
+		{ "name" : "Royalty",
+		  "family" : true},
+		{ "name" : "Delftwood Baronage",
+		  "family" : false},
+		{ "name" : "Autocrat",
+		  "family" : false},
+		{ "name" : "Feastocrat",
+		  "family" : false}
+	],	
+	"admission" : [
+		{  "name" : "Day",
+		   "fees" : {
+			   "Adult" : 10.0,
+			   "Youth" : 5.0,
+			   "Child" : 0.0
+		   }
+		},
+		{  "name" : "Weekend",
+		   "fees" : {
+			   "Adult" : 15.0,
+			   "Youth" : 7.0,
+			   "Child" : 0.0
+		   }
+		}
+	],
+    "fees" : [
+		{ "name" : "Feast",
+		  "fees" : {
+			  "Adult" : 8.0,
+			  "Youth" : 4.0,
+			  "Child" : 0.0
+		  }
+		},
+		{ "name" : "Camp",
+		  "fees" : {
+			  "Adult" : 5.0,
+			  "Youth" : 0.0,
+			  "Child" : 0.0
+		  }
+		}
+	]
+}
+

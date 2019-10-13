@@ -1,0 +1,62 @@
+{
+    "version" : "0.1",
+	"key"     : "yule19",
+    "event"   : "Delftwood Yule",
+    "dates"    : ["2019-12-14"],
+    "site"    : "A Church",
+    "staff"   : [
+		{"title" : "Autocrat",
+		 "names" : ["Sara Flouton"]
+		}
+    ],
+    "feeClasses" : [
+		{ "name" : "Adult",
+		  "nms"  : 5.0
+		},
+		{"name" : "Student",
+		 "desc" : "with id"
+		},
+		{ "name" : "Youth",
+		  "desc" : "6-17"
+		},
+		{ "name" : "Child",
+		  "desc" : "Under 6"
+		}
+	],
+	"comp" : [
+		{ "name" : "Royalty",
+		  "family" : true},
+		{ "name" : "Delftwood Baronage",
+		  "family" : false},
+		{ "name" : "Autocrat",
+		  "family" : false},
+		{ "name" : "Feastocrat",
+		  "family" : false}
+	],	
+	"admission" : [
+		{  "name" : "Admission",
+		   "fees" : {
+			   "Adult" : 10.0,
+			   "Student" : 5.00,
+			   "Youth" : 5.0,
+			   "Child" : 0.0
+		   }
+		}
+	],
+    "fees" : [
+		{ "name" : "Feast",
+		  "fees" : {
+			  "Adult" : 8.0,
+			  "Student" : 8.0,
+			  "Youth" : 4.0,
+			  "Child" : 0.0
+		  }
+		},
+		{ "name" : "Merchant",
+		  "fees" : {
+			  "*" : 10.0
+		  }
+		}
+	]
+}
+
