@@ -15,21 +15,18 @@ class ResvLine(Form):
     scaname = StringField('SCA Name', [Optional()])
     membernumber = IntegerField('Member Number', [Optional(), NumberRange(1,10000000)])
     family = BooleanField('Family')
-    age = SelectField("Age", [Optional()], choices=[
-        ('adult', 'Adult'),
-        ('youth', 'Youth (6-17)'),
-        ('child', 'Child (0-5)')])
+    age = None
     total = StringField('Total', render_kw={'readonly': True})
 
 class EventForm(FlaskForm):
-    email = StringField('EMail', [Email(),DataRequired()])
-    password = PasswordField('Password', [DataRequired()])
+    email = StringField('EMail') #, [Email(),DataRequired()])
+    password = PasswordField('Password')
     phone = StringField('Phone (optional)', [Optional()])
-    firstname = StringField('First Name', [DataRequired()])
-    lastname = StringField('Last Name', [DataRequired()])
+    firstname = StringField('First Name') #, [DataRequired()])
+    lastname = StringField('Last Name') #, [DataRequired()])
     scaname = StringField('SCA Name', [Optional()])
-    membernumber = IntegerField('Member Number', [Optional])
-    address = TextAreaField('Address', [Optional])    
+    membernumber = IntegerField('Member Number', [Optional()])
+    address = TextAreaField('Address', [Optional()])    
     reservations = None
     total = StringField('Total Due', render_kw={'readonly': True})
     submit = SubmitField('Submit')
@@ -39,6 +36,10 @@ def MakeEventForm(ev):
     admfields = {}
     feefields = {}
     rsvl = type(ev.key+'ResvLine', (ResvLine,), {})
+    ctg = []
+    for c in ev.feeCategories:
+        ctg.append([c.key, str(c)])
+    setattr(rsvl, 'age', SelectField("Age", [Optional()], choices=ctg))
     for f in ev.admission:
         setattr(rsvl, f.key, BooleanField(f.name))
         admfields[f.key] = f.name

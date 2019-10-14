@@ -99,8 +99,8 @@ class Event:
         self.site = _jsonget_(js, 'site')
         self.address = _jsonget_(js, 'address')
         self.staff = [Staff(s) for s in _jsonget_(js,'staff', {})]
-        self.feeClasses = [FeeCategory(fc) for fc in _jsonget_(js, 'feeClasses', {})]
-        self.feeClassDict = KeyDict(self.feeClasses)
+        self.feeCategories = [FeeCategory(fc) for fc in _jsonget_(js, 'feeCategories', {})]
+        self.feeCategoryDict = KeyDict(self.feeCategories)
         self.fees = [Fee(f) for f in _jsonget_(js, 'fees', {})]
         self.comp = [Comp(f) for f in _jsonget_(js, 'comp', {})]
         self.admission =  [Fee(f) for f in _jsonget_(js, 'admission', {})]
@@ -135,7 +135,7 @@ class Event:
             sep = ', '
 
         self.feeTable = {}
-        for fc in self.feeClasses:
+        for fc in self.feeCategories:
             self.feeTable[fc.key] = {"nms" : fc.nms}
             for f in self.feeDict:
                 try:

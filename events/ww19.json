@@ -16,7 +16,7 @@
 		 "names" : ["Kieran Ralff"]
 		}
     ],
-    "feeClasses" : [
+    "feeCategories" : [
 		{ "name" : "Adult",
 		  "desc" : "",
 		  "nms"  : 5.0

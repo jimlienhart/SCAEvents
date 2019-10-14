@@ -206,6 +206,15 @@
 <table>
   <tr><td class="nb">Autocrat:</td><td class="nb">{{ event.autocrat }}</td></tr>
 </table>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
 <hr/>
 <h3>Contact Information</h3>
 <form action="" method="post" novalidate>

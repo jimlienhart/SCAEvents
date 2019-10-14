@@ -9,7 +9,7 @@
 		 "names" : ["Sara Flouton"]
 		}
     ],
-    "feeClasses" : [
+    "feeCategories" : [
 		{ "name" : "Adult",
 		  "nms"  : 5.0
 		},

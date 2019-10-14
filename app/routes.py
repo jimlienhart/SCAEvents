@@ -17,6 +17,8 @@ def index():
 
 from app.forms import MakeEventForm
 
+from pdb import set_trace as dbg
+
 @app.route('/event/<evkey>', methods=['GET', 'POST'])
 #@login_required
 def event(evkey):
