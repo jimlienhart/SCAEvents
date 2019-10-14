@@ -127,77 +127,23 @@ class Event:
         else:
             self.admLabel = ''
         self.admkeys = [f.key for f in self.admission]
+        self.feekeys = [f.key for f in self.fees]
         self.special = ''
         sep = ''
         for c in self.comp:
             self.special += sep + c.name
-            sep = ',<br/>'
-        self.scripts = ''
+            sep = ', '
 
-        self.scripts += """
-function isAttending(idx) {
-     return """
-        sep = ''
-        for f in self.admission:
-            self.scripts += sep + 'isResvFieldChecked(idx,"' + f.key + '")'
-            sep += ' || '
-        self.scripts += """;
-}
-"""
-        self.scripts += """
-function checkAdmission(idx, key) {
-    admKeys = ["""
-        sep = ''
-        for k in self.admkeys:
-            self.scripts += sep + '"' + k + '"'
-            sep = ','
-        self.scripts += """];
-    if (admKeys.indexOf(key) >= 0) {
-        for (k in admKeys) {
-            if (admKeys[k] != key) {
-                setResvFieldChecked(idx, admKeys[k], false);
-            }
-        }
-    }
-}
-"""
-        self.scripts += """
-function getFeeTable() {
-    fees = {}"""
+        self.feeTable = {}
         for fc in self.feeClasses:
-            self.scripts += """
-    fees["%s"] = {"nms" : %0.2f};""" % (fc.key, fc.nms)
+            self.feeTable[fc.key] = {"nms" : fc.nms}
             for f in self.feeDict:
                 try:
                     fee = self.feeDict[f]["fees"][fc.name]
                 except:
                     fee = self.feeDict[f]["fees"]["*"]
-                self.scripts += """
-    fees["%s"]["%s"] = %0.2f;""" % (fc.key,f,fee)
-        self.scripts += """
-    return fees;
-}
-"""
-        self.scripts += """
-function calcRowTotal(idx) {
-    var total = 0.0;
-    var attend = isAttending(idx);
-    if (attend) {
-        age = getResvFieldValue(idx, "age");
-        if (isFieldEmpty(idx, "membernumber")) {
-            total += FEES[age]["nms"];
-        }"""
-        for f in self.feeDict:
-            self.scripts += """
-        if (isResvFieldChecked(idx, "%s")) {
-            total += FEES[age]["%s"];
-        }""" % (f,f)
-        self.scripts += """
-    }
-    setResvTotal(idx, total);
-    return total;
-}
-"""
+                self.feeTable[fc.key][f] = fee
+
         
 EVENTS = {}
 for f in glob('events/*.json'):

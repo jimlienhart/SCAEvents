@@ -2,9 +2,11 @@
 
 {% block content %}
 <script>
- var FEES = getFeeTable();
  var ADD_CONTACT = false
- 
+ var ADMKEYS = {{ event.admkeys|safe }};
+ var FEEKEYS = {{ event.feekeys|safe }};
+ var FEES = {{ event.feeTable|safe }};
+
  function getResvField(idx, fieldname) {
    return document.getElementById("reservations-" + idx.toString() + "-" + fieldname);
  }
@@ -50,7 +52,7 @@
    var fields = ["firstname", "lastname", "scaname", "membernumber"];
    for (var i=0; i<fields.length; ++i) {
      if (!isFieldEmpty(idx, fields[i])) {
-       return false;
+	   return false;
      }
    }
    return true;
@@ -78,6 +80,32 @@
    document.getElementById("total").value = (t/100.0).toFixed(2);
  }
 
+ function calcRowTotal(row) {
+   var total = 0;
+   var attend = isAttending(row);
+   if (attend) {
+     age = getResvFieldValue(row, "age");
+     if (isFieldEmpty(row, "membernumber")) {
+       total += FEES[age]["nms"];
+     }
+     for (k in ADMKEYS) {
+	   f = ADMKEYS[k];
+	   if (isResvFieldChecked(row, f)) {
+		 total += FEES[age][f];
+	   }
+	 }
+     for (k in FEEKEYS) {
+	   f = FEEKEYS[k];
+	   if (isResvFieldChecked(row, f)) {
+		 total += FEES[age][f];
+	   }
+	 }
+   }
+   setResvTotal(row, total);
+   return total;
+   
+ }
+
  function checkEnabled() {
    for (var r = 0; r < 16; ++r) {
      var empty = isRowEmpty(r);
@@ -91,17 +119,16 @@
  }
  
  function checkRowEnabled(idx, notempty) {
-   console.log(idx + ' : ' + notempty);
    var row = document.getElementById("resvtable").rows[2+parseInt(idx, 10)];
    for (var i=0; i < row.cells.length; ++i) {
      cell = row.cells[i];
      if (cell.classList.contains("enable")) {
-       for (var j=0; j<cell.children.length; ++j) {
+	   for (var j=0; j<cell.children.length; ++j) {
          cell.children[j].disabled = !notempty;
          if (!notempty &&  (cell.children[j].classList.contains("checkbox"))) {
-           cell.children[j].checked = false;
+		   cell.children[j].checked = false;
          }
-       }
+	   }
      }
    }
    total = calcRowTotal(idx);
@@ -126,6 +153,25 @@
 	   setResvFieldValue("0", obj.name, value);
 	   checkRowEnabled("0", value);
 	 }
+   }
+ }
+ 
+ function isAttending(idx) {
+   for (f in ADMKEYS) {
+	 if (isResvFieldChecked(idx, ADMKEYS[f])) {
+	   return true;
+	 }
+   }
+   return false;		   
+ }
+ 
+ function checkAdmission(idx, key) {
+   if (ADMKEYS.indexOf(key) >= 0) {
+     for (k in ADMKEYS) {
+       if (ADMKEYS[k] != key) {
+         setResvFieldChecked(idx, ADMKEYS[k], false);
+       }
+     }
    }
  }
  
@@ -154,8 +200,6 @@
    }
    checkEnabled();
  }
- 
- {{ event.scripts|safe }}
  
 </script>
 <h2>Reservations for {{ event.label }}</h2>
@@ -200,7 +244,6 @@
 	  <th colspan="{{ event.numAdmCols }}" class="admission">{{ event.admLabel }}</th>
 	  <th colspan="{{ event.numFeeCols }}"/>
 	  <th/>
-	  <th>Special</th>
 	</tr>
     <tr>
       <th>First Name</th>
@@ -216,7 +259,7 @@
       <th><button type="button" onclick="colClick('{{ key }}')">{{ name }}</button></th>
       {% endfor %}
       <th>Total</th>
-      <th><em>{{ event.special|safe }}</em></th>
+      <th title="{{ event.special|safe }}">Special</th>
     </tr>
     {% for r in form.reservations %}
     {% set idx = loop.index0 %}
